@@ -1,71 +1,76 @@
 return {
 	{
-		"hrsh7th/cmp-nvim-lsp",
-		"hrsh7th/cmp-buffer",
-		"hrsh7th/cmp-path",
-		"hrsh7th/cmp-cmdline",
-	},
-	{
-		"L3MON4D3/LuaSnip",
+		"saghen/blink.cmp",
 		dependencies = {
-			"saadparwaiz1/cmp_luasnip",
-		}
+			"L3MON4D3/LuaSnip",
+			version = "v2.*",
+		},
+		version = "1.*",
+
+		---@module 'blink.cmp'
+		---@type blink.cmp.Config
+		opts = {
+			keymap = {
+				["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+				["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+				["<CR>"] = { "accept", "fallback" },
+				["<C-e>"] = { "hide", "fallback" },
+			},
+			appearance = {
+				nerd_font_variant = "mono",
+			},
+			signature = { enabled = true, window = {
+				show_documentation = false,
+			} },
+			completion = {
+				trigger = {
+					show_on_insert_on_trigger_character = false,
+					show_on_accept_on_trigger_character = false,
+					show_on_blocked_trigger_characters = { "{", "(", "}", ")" },
+				},
+				documentation = {
+					auto_show = true,
+					auto_show_delay_ms = 500,
+				},
+				menu = {
+					scrollbar = false,
+					draw = {
+						columns = {
+							{ "kind_icon" },
+							{ "label", "label_description", gap = 1 },
+							{ "kind", gap = 1 },
+							{ "label_description", gap = 1 },
+							{ "source_name", gap = 1 },
+						},
+						components = {
+							kind_icon = {
+								text = function(ctx)
+									local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+									return kind_icon
+								end,
+								-- (optional) use highlights from mini.icons
+								highlight = function(ctx)
+									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+									return hl
+								end,
+							},
+							kind = {
+								-- (optional) use highlights from mini.icons
+								highlight = function(ctx)
+									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+									return hl
+								end,
+							},
+						},
+					},
+				},
+			},
+			snippets = { preset = "luasnip" },
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer" },
+			},
+			fuzzy = { implementation = "prefer_rust_with_warning" },
+		},
+		opts_extend = { "sources.default" },
 	},
-	{
-		"hrsh7th/nvim-cmp",
-		config = function()
-			local cmp = require 'cmp'
-			local luasnip = require("luasnip")
-
-			cmp.setup({
-				snippet = {
-					expand = function(args)
-						require('luasnip').lsp_expand(args.body)
-					end
-				},
-				window = {
-					completion = cmp.config.window.bordered(),
-					documentation = cmp.config.window.bordered(),
-				},
-				mapping = cmp.mapping.preset.insert({
-					['<C-b>'] = cmp.mapping.scroll_docs(-4),
-					['<C-f>'] = cmp.mapping.scroll_docs(4),
-					['<C-Space>'] = cmp.mapping.complete(),
-					['<C-e>'] = cmp.mapping.abort(),
-					['<CR>'] = cmp.mapping.confirm({ select = false }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-
-					["<Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_next_item()
-						elseif luasnip.expand_or_jumpable() then
-							luasnip.expand_or_jump()
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-
-					["<S-Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_prev_item()
-						elseif luasnip.jumpable(-1) then
-							luasnip.jump(-1)
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-				}),
-				formatting = {
-					format = require("nvim-highlight-colors").format
-				},
-				sources = cmp.config.sources({
-					{ name = "nvim_lsp" },
-					{ name = 'render-markdown' },
-					{ name = "luasnip" }, -- For luasnip users.
-					{ name = "nvim_lsp_signature_help" }, -- function arg popups while typing
-				}, {
-					{ name = "buffer" },
-				}),
-			})
-		end
-	}
 }

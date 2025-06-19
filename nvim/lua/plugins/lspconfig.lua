@@ -2,15 +2,12 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
 			"b0o/schemastore.nvim",
+			"saghen/blink.cmp",
 		},
 		config = function()
 			local lspconfig = require("lspconfig")
-			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 			-- lua_ls setup
 			lspconfig.lua_ls.setup({
